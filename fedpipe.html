@@ -1,0 +1,2221 @@
+<!--
+FedPipe - Federal Pipeline Visualizer
+MIT License
+Copyright (c) 2025 flourcode
+https://github.com/flourcode/fedpipe
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="FedPipe - A visualization tool for federal sales pipeline data">       	<meta name="author" content="flourcode">
+    <title>FedPipe - Federal Pipeline Visualizer</title>
+    <style>
+        :root {
+            --primary: #1a3a5f;
+            --secondary: #3c6e71;
+            --accent: #d9b08c;
+            --light: #f5f5f5;
+            --dark: #333333;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --info: #2196f3;
+            --gray: #e0e0e0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+            -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
+        }
+
+        .navbar {
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo span {
+            color: var(--accent);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .title {
+            font-size: 1.8rem;
+            color: var(--primary);
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            color: var(--secondary);
+            margin-top: 0.25rem;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-height: 44px; /* Improved touch target */
+            min-width: 44px; /* Improved touch target */
+            justify-content: center;
+            touch-action: manipulation; /* Optimizes for touch */
+        }
+
+        .btn-sm {
+            padding: 0.25rem 0.75rem;
+            font-size: 0.8rem;
+            min-height: 36px; /* Smaller but still touch-friendly */
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .btn:active {
+            transform: scale(0.98); /* Feedback on touch */
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            color: var(--dark);
+            font-size: 0.9rem;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background-color: var(--gray);
+            border-radius: 3px;
+            margin-top: 0.75rem;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background-color: var(--secondary);
+        }
+
+.chart-container {
+    margin-bottom: 2rem;
+    position: relative;
+    height: 300px; /* Fixed height for all chart containers */
+}
+
+.chart-container canvas {
+    max-height: 100%;
+}
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .chart-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .upload-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem 1rem;
+            border: 2px dashed var(--gray);
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: var(--secondary);
+            margin-bottom: 1rem;
+        }
+
+        .upload-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .upload-subtitle {
+            color: var(--secondary);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .upload-options {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .dashboard {
+            display: none;
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            z-index: 9999;
+        }
+
+        .toast {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: transform 0.3s, opacity 0.3s;
+            transform: translateX(100%);
+            opacity: 0;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .toast-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .toast-success .toast-icon {
+            background-color: var(--success);
+        }
+
+        .toast-error .toast-icon {
+            background-color: var(--danger);
+        }
+
+        .toast-warning .toast-icon {
+            background-color: var(--warning);
+        }
+
+        .toast-info .toast-icon {
+            background-color: var(--info);
+        }
+
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .toast-message {
+            font-size: 0.9rem;
+            color: var(--secondary);
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--dark);
+            font-size: 1.2rem;
+            min-height: 44px;
+            min-width: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* CSV Upload Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            overscroll-behavior: contain; /* Prevent scroll propagation */
+        }
+        
+        .modal-content {
+            background-color: white;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 1;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            min-height: 44px;
+            min-width: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-body {
+            padding: 1.5rem;
+        }
+        
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--gray);
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            position: sticky;
+            bottom: 0;
+            background: white;
+            z-index: 1;
+        }
+        
+        .csv-info {
+            margin-top: 1.5rem;
+        }
+        
+        .csv-info h4 {
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+        
+        .csv-info p {
+            font-size: 0.9rem;
+            color: var(--secondary);
+            margin-bottom: 0.75rem;
+        }
+        
+        .csv-info ul {
+            font-size: 0.9rem;
+            color: var(--secondary);
+            padding-left: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--gray);
+            border-radius: 4px;
+            font-size: 1rem;
+            min-height: 44px; /* Better touch target */
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .navbar {
+                padding: 0.75rem 1rem;
+            }
+            
+            .title {
+                font-size: 1.5rem;
+            }
+            
+            .subtitle {
+                font-size: 0.9rem;
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+            
+            .card-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .charts-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .chart-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+            
+            .export-chart-btn {
+                width: 100%;
+            }
+            
+            .upload-options {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .upload-options .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .modal-content {
+                width: 95%;
+                max-height: 85vh;
+            }
+            
+            .modal-footer {
+                flex-direction: column;
+            }
+            
+            .modal-footer .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .toast-container {
+                top: 1rem;
+                right: 1rem;
+                left: 1rem;
+            }
+            
+            .toast {
+                width: 100%;
+            }
+            
+            /* Fixed action buttons for mobile */
+            #dashboard .card-actions {
+                position: sticky;
+                top: 0;
+                background: var(--light);
+                padding: 0.5rem 0;
+                z-index: 10;
+                margin-bottom: 1rem;
+            }
+        }
+
+        /* Extra small screen optimizations */
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .navbar {
+                padding: 0.5rem;
+            }
+            
+            .logo {
+                font-size: 1.25rem;
+            }
+            
+            .user-info {
+                font-size: 0.8rem;
+            }
+            
+            .card {
+                padding: 1rem;
+            }
+            
+            .toast {
+                padding: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">FedPipe</div>
+        </nav>
+
+    <div class="container">
+       <div class="header">
+            <div>
+                <h1 class="title">Federal Pipeline Visualizer</h1>
+                <p class="subtitle">Analyze your federal sales pipeline with interactive visualizations</p>
+                <div id="sampleDataBadge" style="background-color: #1a3a5f; color: white; display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; margin-top: 0.5rem;">
+                    <i class="fas fa-info-circle"></i> Viewing Sample Data
+                </div>
+            </div>
+        </div>
+
+        <!-- Upload Section -->
+        <div class="upload-container" id="uploadContainer">
+            <i class="fas fa-chart-line upload-icon"></i>
+            <h2 class="upload-title">Visualize Your Federal Pipeline</h2>
+            <p class="upload-subtitle">Import your pipeline data in CSV or Excel format to generate interactive charts and insights</p>
+            <div class="upload-options">
+                <button class="btn" id="uploadCsvBtn">
+                    <i class="fas fa-upload"></i> Upload Data File
+                </button>
+                <button class="btn btn-secondary" id="useSampleBtn">
+                    <i class="fas fa-chart-bar"></i> Use Sample Data
+                </button>
+                <button class="btn btn-outline" id="downloadTemplateBtn">
+                    <i class="fas fa-download"></i> Download Template
+                </button>
+            </div>
+            <input type="file" id="csvFileInput" accept=".csv,.xlsx,.xls" style="display: none;">
+        </div>
+
+      <!-- Dashboard Section (initially shows sample data) -->
+<!-- Dashboard Section (initially shows sample data) -->
+<div class="dashboard" id="dashboard">
+    <div style="margin-bottom: 2rem;">
+        <div class="card" style="padding: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
+                <div style="display: flex; gap: 1rem;">
+                    <button class="btn" id="uploadCsvDashboardBtn" style="padding: 0.75rem 1.25rem;">
+                        <i class="fas fa-upload" style="margin-right: 0.5rem;"></i> Upload Your Data
+                    </button>
+                    <button class="btn btn-outline" id="downloadTemplateBtn" style="padding: 0.75rem 1.25rem;">
+                        <i class="fas fa-download" style="margin-right: 0.5rem;"></i> Download Template
+                    </button>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button class="btn btn-outline" id="resetBtn" style="padding: 0.75rem 1.25rem;">
+                        <i class="fas fa-undo" style="margin-right: 0.5rem;"></i> Reset
+                    </button>
+                    <button class="btn btn-secondary" id="exportAllBtn" style="padding: 0.75rem 1.25rem;">
+                        <i class="fas fa-download" style="margin-right: 0.5rem;"></i> Export All Charts
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+            
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-card">
+                    <div class="stat-value" id="activeOpportunities">0</div>
+                    <div class="stat-label">Active Opportunities</div>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="pipelineValue">$0</div>
+                    <div class="stat-label">Pipeline Value</div>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="winRate">0%</div>
+                    <div class="stat-label">Win Rate</div>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="avgCloseDays">0</div>
+                    <div class="stat-label">Avg. Days to Close</div>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Pipeline Analytics</h2>
+                </div>
+
+                <div class="charts-grid">
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <div class="chart-title">Pipeline by Stage</div>
+                            <button class="btn btn-sm btn-outline export-chart-btn" data-chart="pipelineByStageChart" data-title="Pipeline by Stage">
+                                <i class="fas fa-download"></i> Export
+                            </button>
+                        </div>
+                        <canvas id="pipelineByStageChart" height="250"></canvas>
+                    </div>
+
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <div class="chart-title">Pipeline by Agency</div>
+                            <button class="btn btn-sm btn-outline export-chart-btn" data-chart="pipelineByAgencyChart" data-title="Pipeline by Agency">
+                                <i class="fas fa-download"></i> Export
+                            </button>
+                        </div>
+                        <canvas id="pipelineByAgencyChart" height="250"></canvas>
+                    </div>
+                </div>
+
+                <div class="charts-grid">
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <div class="chart-title">Opportunity Trend</div>
+                            <button class="btn btn-sm btn-outline export-chart-btn" data-chart="opportunityTrendChart" data-title="Opportunity Trend">
+                                <i class="fas fa-download"></i> Export
+                            </button>
+                        </div>
+                        <canvas id="opportunityTrendChart" height="250"></canvas>
+                    </div>
+
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <div class="chart-title">Win Rate Analysis</div>
+                            <button class="btn btn-sm btn-outline export-chart-btn" data-chart="winRateChart" data-title="Win Rate Analysis">
+                                <i class="fas fa-download"></i> Export
+                            </button>
+                        </div>
+                        <canvas id="winRateChart" height="250"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Agency Breakdown</h2>
+                </div>
+                <div class="chart-container">
+                    <canvas id="agencyBreakdownChart" height="300"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Executive Summary</h2>
+                    <button class="btn btn-sm btn-secondary" id="generateReportBtn">
+                        <i class="fas fa-file-pdf"></i> Generate Report
+                    </button>
+                </div>
+                <div id="summaryContent" style="padding: 1rem 0;">
+                    <!-- Summary content will be generated dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CSV Upload Modal -->
+    <div id="csvModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Upload Pipeline Data</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="text-align: center; margin-bottom: 2rem;">
+                    <i class="fas fa-file-upload" style="font-size: 3rem; color: var(--secondary); margin-bottom: 1rem;"></i>
+                    <h3>Import your pipeline data</h3>
+                    <p style="color: var(--secondary); margin-bottom: 1.5rem;">Upload a CSV or Excel file with your pipeline data to visualize metrics</p>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="csvFile">Select Data File</label>
+                    <input type="file" class="form-control" id="csvFile" accept=".csv,.xlsx,.xls">
+                </div>
+                
+                <div class="csv-info">
+                    <h4>Expected Data Format</h4>
+                    <p>Your file should include these columns:</p>
+                    <ul>
+                        <li>OpportunityName - The name of the opportunity</li>
+                        <li>Agency - The federal agency (e.g., DoD, DHS, etc.)</li>
+                        <li>Stage - The current stage (Identify, Qualify, Propose, Negotiate, Closed Won, Closed Lost)</li>
+                        <li>Value - Estimated value in dollars (e.g., 350000)</li>
+                        <li>CloseDate - Expected close date in YYYY-MM-DD format</li>
+                        <li>Probability - Win probability percentage (0-100)</li>
+                    </ul>
+                    <button class="btn btn-outline" id="downloadTemplateModalBtn" style="width: 100%;">
+                        <i class="fas fa-download"></i> Download Template
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline modal-close-btn">Cancel</button>
+                <button class="btn" id="processCSVBtn">Process Data</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Modal -->
+    <div id="reportModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h2 class="modal-title">Executive Summary Report</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body" id="reportContent">
+                <!-- Report content will be generated dynamically -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline modal-close-btn">Close</button>
+                <button class="btn" id="downloadReportBtn">
+                    <i class="fas fa-download"></i> Download PDF
+                </button>
+                <button class="btn btn-secondary" id="exportReportImageBtn">
+                    <i class="fas fa-image"></i> Export as Image
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div class="toast-container" id="toastContainer"></div>
+ <!-- Footer with license information -->
+    <footer style="text-align: center; padding: 1.5rem; margin-top: 2rem; color: #666; font-size: 0.9rem; border-top: 1px solid #eee;">
+        <p>FedPipe &copy; 2025 - <a href="https://github.com/flourcode/fedpipe" target="_blank" style="color: #1a3a5f; text-decoration: none;">GitHub</a> - Released under MIT License</p>
+    </footer>
+    <!-- Font Awesome -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+    <!-- html2canvas for report export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- SheetJS for Excel support -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <script>
+        // Sample data for the dashboard
+        const sampleData = [
+            { OpportunityName: "Cloud Migration Services", Agency: "DoD", Stage: "Identify", Value: 350000, CloseDate: "2025-08-15", Probability: 20 },
+            { OpportunityName: "AI/ML Research Program", Agency: "DARPA", Stage: "Identify", Value: 450000, CloseDate: "2025-09-30", Probability: 30 },
+            { OpportunityName: "Cybersecurity Enhancement", Agency: "DHS", Stage: "Qualify", Value: 750000, CloseDate: "2025-07-15", Probability: 40 },
+            { OpportunityName: "IT Modernization", Agency: "Treasury", Stage: "Qualify", Value: 450000, CloseDate: "2025-08-20", Probability: 50 },
+            { OpportunityName: "Network Infrastructure", Agency: "GSA", Stage: "Propose", Value: 950000, CloseDate: "2025-07-05", Probability: 60 },
+            { OpportunityName: "Data Analytics Platform", Agency: "NASA", Stage: "Propose", Value: 550000, CloseDate: "2025-07-25", Probability: 70 },
+            { OpportunityName: "DevSecOps Training", Agency: "Air Force", Stage: "Negotiate", Value: 700000, CloseDate: "2025-07-10", Probability: 80 },
+            { OpportunityName: "System Integration", Agency: "VA", Stage: "Closed Won", Value: 850000, CloseDate: "2025-06-01", Probability: 100 },
+            { OpportunityName: "Database Migration", Agency: "HHS", Stage: "Closed Won", Value: 320000, CloseDate: "2025-05-15", Probability: 100 },
+            { OpportunityName: "Mobile App Development", Agency: "DOJ", Stage: "Closed Lost", Value: 280000, CloseDate: "2025-05-20", Probability: 0 },
+            { OpportunityName: "Help Desk Support", Agency: "DOE", Stage: "Closed Lost", Value: 390000, CloseDate: "2025-06-10", Probability: 0 }
+        ];
+
+        // Current data for the dashboard
+        let pipelineData = [];
+
+        // Chart references
+        let pipelineByStageChart;
+        let pipelineByAgencyChart;
+        let opportunityTrendChart;
+        let winRateChart;
+        let agencyBreakdownChart;
+
+        // DOM elements
+        const uploadContainer = document.getElementById('uploadContainer');
+        const dashboard = document.getElementById('dashboard');
+        const uploadCsvBtn = document.getElementById('uploadCsvBtn');
+        const useSampleBtn = document.getElementById('useSampleBtn');
+        const downloadTemplateBtn = document.getElementById('downloadTemplateBtn');
+        const csvFileInput = document.getElementById('csvFileInput');
+        const resetBtn = document.getElementById('resetBtn');
+        const exportAllBtn = document.getElementById('exportAllBtn');
+        const generateReportBtn = document.getElementById('generateReportBtn');
+        const toastContainer = document.getElementById('toastContainer');
+        
+        // Modal elements
+        const csvModal = document.getElementById('csvModal');
+        const reportModal = document.getElementById('reportModal');
+        const csvFile = document.getElementById('csvFile');
+        const processCSVBtn = document.getElementById('processCSVBtn');
+        const downloadTemplateModalBtn = document.getElementById('downloadTemplateModalBtn');
+        const downloadReportBtn = document.getElementById('downloadReportBtn');
+        const exportReportImageBtn = document.getElementById('exportReportImageBtn');
+
+        // Initialize the app
+      document.addEventListener('DOMContentLoaded', function() {
+    setupEventListeners();
+    
+    // Set responsive chart options
+    Chart.defaults.responsive = true;
+    Chart.defaults.maintainAspectRatio = false;
+    
+    // Load sample data and show dashboard on load
+    useSampleData();
+    
+    // Handle device orientation changes to redraw charts
+    window.addEventListener('resize', function() {
+        if (pipelineData.length > 0) {
+            updateDashboard();
+        }
+    });
+});
+
+        // Set up event listeners
+        function setupEventListeners() {
+            // Upload buttons
+            uploadCsvBtn.addEventListener('click', function() {
+                openModal(csvModal);
+            });
+            
+            // Dashboard upload button
+            document.getElementById('uploadCsvDashboardBtn').addEventListener('click', function() {
+                openModal(csvModal);
+            });
+            
+            useSampleBtn.addEventListener('click', function() {
+                useSampleData();
+            });
+            
+            downloadTemplateBtn.addEventListener('click', function() {
+                downloadCSVTemplate();
+            });
+            
+            // File inputs with improved handling for both CSV and Excel
+            csvFileInput.addEventListener('change', function(e) {
+                if (e.target.files.length > 0) {
+                    const file = e.target.files[0];
+                    processFile(file);
+                }
+            });
+            
+            // Mobile-friendly touch handlers
+            if ('ontouchstart' in document.documentElement) {
+                document.body.addEventListener('touchstart', function(e) {
+                    if (e.target.classList.contains('btn')) {
+                        e.target.classList.add('active');
+                    }
+                });
+                
+                document.body.addEventListener('touchend', function(e) {
+                    if (e.target.classList.contains('btn')) {
+                        e.target.classList.remove('active');
+                    }
+                });
+            }
+            
+            // Reset button
+            resetBtn.addEventListener('click', function() {
+                resetDashboard();
+            });
+            
+            // Export all charts
+            exportAllBtn.addEventListener('click', function() {
+                exportAllCharts();
+            });
+            
+            // Generate report
+            generateReportBtn.addEventListener('click', function() {
+                generateExecutiveReport();
+            });
+            
+            // Chart export buttons
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.export-chart-btn')) {
+                    const btn = e.target.closest('.export-chart-btn');
+                    const chartId = btn.getAttribute('data-chart');
+                    const chartTitle = btn.getAttribute('data-title');
+                    exportChartAsImage(chartId, chartTitle);
+                }
+            });
+            
+            // CSV Modal
+            csvFile.addEventListener('change', function(e) {
+                if (e.target.files.length > 0) {
+                    const fileName = e.target.files[0].name;
+                    this.nextElementSibling = fileName;
+                }
+            });
+            
+            processCSVBtn.addEventListener('click', function() {
+                if (csvFile.files.length > 0) {
+                    const file = csvFile.files[0];
+                    processFile(file);
+                    closeModal(csvModal);
+                } else {
+                    showToast('Please select a file', 'warning');
+                }
+            });
+            
+            downloadTemplateModalBtn.addEventListener('click', function() {
+                downloadCSVTemplate();
+            });
+            
+            // Report Modal
+            downloadReportBtn.addEventListener('click', function() {
+                downloadExecutiveReport();
+            });
+            
+            exportReportImageBtn.addEventListener('click', function() {
+                exportReportAsImage();
+            });
+            
+            // Modal close buttons
+            document.querySelectorAll('.modal-close, .modal-close-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const modal = this.closest('.modal');
+                    closeModal(modal);
+                });
+            });
+            
+            // Close modal when clicking outside
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        closeModal(this);
+                    }
+                });
+            });
+        }
+
+        // Modal functions
+        function openModal(modal) {
+            modal.style.display = 'flex';
+            // Prevent body scrolling when modal is open
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(modal) {
+            modal.style.display = 'none';
+            // Restore body scrolling
+            document.body.style.overflow = '';
+        }
+
+        // Data processing functions
+     function useSampleData() {
+            pipelineData = JSON.parse(JSON.stringify(sampleData)); // Deep copy
+            showDashboard();
+            updateDashboard();
+            document.getElementById('sampleDataBadge').style.display = 'inline-block';
+            showToast('Sample data loaded successfully', 'success');
+        }
+
+        function downloadCSVTemplate() {
+            const header = 'OpportunityName,Agency,Stage,Value,CloseDate,Probability\n';
+            const sampleRow1 = 'Cloud Migration Services,DoD,Identify,350000,2025-08-15,20\n';
+            const sampleRow2 = 'Cybersecurity Enhancement,DHS,Qualify,750000,2025-07-15,40\n';
+            const sampleRow3 = 'Network Infrastructure,GSA,Propose,950000,2025-07-05,60\n';
+            
+            const csvContent = header + sampleRow1 + sampleRow2 + sampleRow3;
+            
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('hidden', '');
+            a.setAttribute('href', url);
+            a.setAttribute('download', 'fedpipe_template.csv');
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            
+            showToast('CSV template downloaded', 'success');
+        }
+
+        // Process both CSV and Excel files
+        function processFile(file) {
+            const fileType = file.name.split('.').pop().toLowerCase();
+            
+            if (fileType === 'csv') {
+                // Process CSV file
+                processCSVFile(file);
+            } else if (fileType === 'xlsx' || fileType === 'xls') {
+                // Process Excel file
+                processExcelFile(file);
+            } else {
+                showToast('Unsupported file format. Please upload a CSV or Excel file.', 'error');
+            }
+        }
+
+        function processCSVFile(file) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                try {
+                    const csvContent = e.target.result;
+                    const data = parseCSV(csvContent);
+                    
+                    if (data.length === 0) {
+                        showToast('No data found in CSV file', 'error');
+                        return;
+                    }
+                    
+                    // Validate data structure
+                    validateAndProcessData(data);
+                } catch (error) {
+                    console.error('Error processing CSV:', error);
+                    showToast('Error processing CSV file', 'error');
+                }
+            };
+            
+            reader.onerror = function() {
+                showToast('Error reading file', 'error');
+            };
+            
+            reader.readAsText(file);
+        }
+
+        // New function to process Excel files
+        function processExcelFile(file) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                try {
+                    // Read the Excel file using SheetJS
+                    const data = e.target.result;
+                    const workbook = XLSX.read(data, {
+                        type: 'array',
+                        cellDates: true, // Handle dates properly
+                        dateNF: 'yyyy-mm-dd' // Date format
+                    });
+                    
+                    // Get the first sheet
+                    const sheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[sheetName];
+                    
+                    // Convert to JSON
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { 
+                        raw: false, // Convert to strings
+                        dateNF: 'yyyy-mm-dd' // Format dates
+                    });
+                    
+                    if (jsonData.length === 0) {
+                        showToast('No data found in Excel file', 'error');
+                        return;
+                    }
+                    
+                    // Validate data structure
+                    validateAndProcessData(jsonData);
+                } catch (error) {
+                    console.error('Error processing Excel:', error);
+                    showToast('Error processing Excel file', 'error');
+                }
+            };
+            
+            reader.onerror = function() {
+                showToast('Error reading file', 'error');
+            };
+            
+            reader.readAsArrayBuffer(file);
+        }
+
+        // Common validation and processing for both CSV and Excel
+function validateAndProcessData(data) {
+            // Validate data structure
+            const requiredColumns = ['OpportunityName', 'Agency', 'Stage', 'Value', 'CloseDate', 'Probability'];
+            const firstRow = data[0];
+            
+            // Check column names (case insensitive)
+            const dataColumns = Object.keys(firstRow).map(col => col.toLowerCase());
+            const missingColumns = requiredColumns.filter(col => 
+                !dataColumns.includes(col.toLowerCase()));
+            
+            if (missingColumns.length > 0) {
+                showToast(`Missing required columns: ${missingColumns.join(', ')}`, 'error');
+                return;
+            }
+            
+            // Map column names to standardized format (handling case insensitivity)
+            const columnMap = {};
+            requiredColumns.forEach(reqCol => {
+                const matchingCol = Object.keys(firstRow).find(col => 
+                    col.toLowerCase() === reqCol.toLowerCase());
+                if (matchingCol) {
+                    columnMap[reqCol] = matchingCol;
+                }
+            });
+            
+            // Process and convert data types
+            const processedData = data.map(item => ({
+                OpportunityName: item[columnMap.OpportunityName],
+                Agency: item[columnMap.Agency],
+                Stage: item[columnMap.Stage],
+                Value: parseFloat(String(item[columnMap.Value]).replace(/[^\d.-]/g, '')) || 0,
+                CloseDate: item[columnMap.CloseDate],
+                Probability: parseFloat(String(item[columnMap.Probability]).replace(/[^\d.-]/g, '')) || 0
+            }));
+            
+            pipelineData = processedData;
+            showDashboard();
+            updateDashboard();
+            
+            // Hide sample data badge when using real data
+            document.getElementById('sampleDataBadge').style.display = 'none';
+            
+            showToast('Data loaded successfully', 'success');
+        }
+
+        function parseCSV(csvContent) {
+            // Simple CSV parser
+            const lines = csvContent.split('\n');
+            
+            // Find the header line and extract column names
+            let headerLine = lines[0];
+            if (!headerLine || headerLine.trim() === '') {
+                return [];
+            }
+            
+            const headers = headerLine.split(',').map(h => h.trim());
+            
+            // Process data rows
+            const data = [];
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+                
+                // Handle quoted values with commas inside
+                let values = [];
+                let inQuote = false;
+                let currentValue = '';
+                
+                for (let j = 0; j < line.length; j++) {
+                    const char = line[j];
+                    
+                    if (char === '"') {
+                        inQuote = !inQuote;
+                    } else if (char === ',' && !inQuote) {
+                        values.push(currentValue);
+                        currentValue = '';
+                    } else {
+                        currentValue += char;
+                    }
+                }
+                
+                // Add the last value
+                values.push(currentValue);
+                
+                // If not enough values were parsed, use simple split instead
+                if (values.length !== headers.length) {
+                    values = line.split(',').map(v => v.trim());
+                }
+                
+                // Create an object with header keys
+                const entry = {};
+                headers.forEach((header, index) => {
+                    if (index < values.length) {
+                        entry[header] = values[index].replace(/^"|"$/g, '').trim();
+                    } else {
+                        entry[header] = '';
+                    }
+                });
+                
+                data.push(entry);
+            }
+            
+            return data;
+        }
+
+	    function resetDashboard() {
+            pipelineData = [];
+            dashboard.style.display = 'none';
+            uploadContainer.style.display = 'flex';
+            
+            // Destroy existing charts
+            if (pipelineByStageChart) pipelineByStageChart.destroy();
+            if (pipelineByAgencyChart) pipelineByAgencyChart.destroy();
+            if (opportunityTrendChart) opportunityTrendChart.destroy();
+            if (winRateChart) winRateChart.destroy();
+            if (agencyBreakdownChart) agencyBreakdownChart.destroy();
+            
+            // Clear file input
+            csvFileInput.value = '';
+            csvFile.value = '';
+            
+            // Hide sample data badge
+            document.getElementById('sampleDataBadge').style.display = 'none';
+            
+            showToast('Dashboard reset', 'info');
+        }
+
+        function showDashboard() {
+            uploadContainer.style.display = 'none';
+            dashboard.style.display = 'block';
+        }
+
+        function updateDashboard() {
+            // Update stats
+            updateStats();
+            
+            // Create or update charts
+            createPipelineByStageChart();
+            createPipelineByAgencyChart();
+            createOpportunityTrendChart();
+            createWinRateChart();
+            createAgencyBreakdownChart();
+            
+            // Update summary
+            updateExecutiveSummary();
+        }
+
+        function updateStats() {
+            // Calculate key metrics
+            const activeOpps = pipelineData.filter(item => !item.Stage.includes('Closed'));
+            const totalValue = activeOpps.reduce((sum, item) => sum + item.Value, 0);
+            
+            const closedOpps = pipelineData.filter(item => item.Stage.includes('Closed'));
+            const wonOpps = pipelineData.filter(item => item.Stage === 'Closed Won');
+            const winRate = closedOpps.length > 0 ? (wonOpps.length / closedOpps.length) * 100 : 0;
+            
+            // Calculate average days to close
+            const today = new Date();
+            const avgDaysToClose = activeOpps.length > 0 ? 
+                activeOpps.reduce((sum, item) => {
+                    let closeDate;
+                    // Handle different date formats
+                    if (item.CloseDate instanceof Date) {
+                        closeDate = item.CloseDate;
+                    } else {
+                        // Try ISO format first
+                        closeDate = new Date(item.CloseDate);
+                        // If invalid, try other common formats
+                        if (isNaN(closeDate.getTime())) {
+                            // Try MM/DD/YYYY
+                            const parts = item.CloseDate.split(/[/\-\.]/);
+                            if (parts.length === 3) {
+                                if (parts[0].length <= 2 && parts[1].length <= 2) {
+                                    closeDate = new Date(parts[2], parts[0] - 1, parts[1]);
+                                } else {
+                                    closeDate = new Date(parts[0], parts[1] - 1, parts[2]);
+                                }
+                            }
+                        }
+                    }
+                    
+                    const daysDiff = !isNaN(closeDate.getTime()) ? 
+                        Math.ceil((closeDate - today) / (1000 * 60 * 60 * 24)) : 
+                        0;
+                    return sum + (daysDiff > 0 ? daysDiff : 0);
+                }, 0) / activeOpps.length : 0;
+            
+            // Update DOM elements
+            document.getElementById('activeOpportunities').textContent = activeOpps.length;
+            document.getElementById('pipelineValue').textContent = formatCurrency(totalValue);
+            document.getElementById('winRate').textContent = Math.round(winRate) + '%';
+            document.getElementById('avgCloseDays').textContent = Math.round(avgDaysToClose);
+            
+            // Update progress bars
+            document.querySelector('#activeOpportunities').parentNode.querySelector('.progress').style.width = 
+                Math.min(activeOpps.length * 8, 100) + '%';
+            
+            document.querySelector('#pipelineValue').parentNode.querySelector('.progress').style.width = 
+                Math.min((totalValue / 5000000) * 100, 100) + '%';
+            
+            document.querySelector('#winRate').parentNode.querySelector('.progress').style.width = 
+                Math.min(winRate, 100) + '%';
+            
+            document.querySelector('#avgCloseDays').parentNode.querySelector('.progress').style.width = 
+                Math.min(100 - ((avgDaysToClose / 90) * 100), 100) + '%';
+        }
+
+        // Chart Creation Functions
+        function createPipelineByStageChart() {
+            // Group by stage
+            const stages = ['Identify', 'Qualify', 'Propose', 'Negotiate', 'Closed Won', 'Closed Lost'];
+            const stageData = stages.map(stage => {
+                const stageItems = pipelineData.filter(item => item.Stage === stage);
+                const stageValue = stageItems.reduce((sum, item) => sum + item.Value, 0);
+                return stageValue / 1000000; // Convert to millions
+            });
+            
+            const ctx = document.getElementById('pipelineByStageChart').getContext('2d');
+            
+            // Mobile-optimized chart options
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    title: {
+                        display: false
+                    },
+                    tooltip: {
+                        bodyFont: {
+                            size: isMobile() ? 14 : 12
+                        },
+                        padding: isMobile() ? 10 : 8
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Value ($M)',
+                            font: {
+                                size: isMobile() ? 14 : 12
+                            }
+                        },
+                        ticks: {
+                            font: {
+                                size: isMobile() ? 12 : 11
+                            }
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            font: {
+                                size: isMobile() ? 12 : 11
+                            }
+                        }
+                    }
+                }
+            };
+            
+            // Destroy previous chart if it exists
+            if (pipelineByStageChart) {
+                pipelineByStageChart.destroy();
+            }
+            
+            pipelineByStageChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: stages,
+                    datasets: [{
+                        label: 'Pipeline Value ($M)',
+                        data: stageData,
+                        backgroundColor: [
+                            'rgba(54, 162, 235, 0.5)',
+                            'rgba(75, 192, 192, 0.5)',
+                            'rgba(153, 102, 255, 0.5)',
+                            'rgba(255, 159, 64, 0.5)',
+                            'rgba(76, 175, 80, 0.5)',
+                            'rgba(244, 67, 54, 0.5)'
+                        ],
+                        borderColor: [
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)',
+                            'rgba(76, 175, 80, 1)',
+                            'rgba(244, 67, 54, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: chartOptions
+            });
+        }
+
+       // Create Pipeline by Agency Chart
+        function createPipelineByAgencyChart() {
+            // Group by agency
+            const agencies = [...new Set(pipelineData.map(item => item.Agency))];
+            const agencyData = agencies.map(agency => {
+                const agencyItems = pipelineData.filter(item => item.Agency === agency && !item.Stage.includes('Closed Lost'));
+                const agencyValue = agencyItems.reduce((sum, item) => sum + item.Value, 0);
+                return agencyValue / 1000000; // Convert to millions
+            });
+            
+            const ctx = document.getElementById('pipelineByAgencyChart').getContext('2d');
+            
+            // Mobile-optimized chart options
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: isMobile() ? 'bottom' : 'right',
+                        labels: {
+                            boxWidth: isMobile() ? 10 : 12,
+                            padding: isMobile() ? 15 : 10,
+                            font: {
+                                size: isMobile() ? 12 : 11
+                            }
+                        }
+                    },
+                    tooltip: {
+                        bodyFont: {
+                            size: isMobile() ? 14 : 12
+                        },
+                        padding: isMobile() ? 10 : 8
+                    }
+                }
+            };
+            
+            // Destroy previous chart if it exists
+            if (pipelineByAgencyChart) {
+                pipelineByAgencyChart.destroy();
+            }
+            
+            pipelineByAgencyChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: agencies,
+                    datasets: [{
+                        data: agencyData,
+                        backgroundColor: [
+                            'rgba(54, 162, 235, 0.7)',
+                            'rgba(75, 192, 192, 0.7)',
+                            'rgba(153, 102, 255, 0.7)',
+                            'rgba(255, 159, 64, 0.7)',
+                            'rgba(76, 175, 80, 0.7)',
+                            'rgba(255, 99, 132, 0.7)',
+                            'rgba(255, 206, 86, 0.7)',
+                            'rgba(199, 199, 199, 0.7)',
+                            'rgba(83, 102, 255, 0.7)',
+                            'rgba(255, 99, 32, 0.7)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: chartOptions
+            });
+        }
+
+        function createOpportunityTrendChart() {
+            // Group by month for the next 6 months
+            const today = new Date();
+            const months = [];
+            const monthData = [];
+            
+            for (let i = 0; i < 6; i++) {
+                const month = new Date(today.getFullYear(), today.getMonth() + i, 1);
+                const monthYear = month.toLocaleString('default', { month: 'short', year: '2-digit' });
+                months.push(monthYear);
+                
+                const startDate = new Date(month.getFullYear(), month.getMonth(), 1);
+                const endDate = new Date(month.getFullYear(), month.getMonth() + 1, 0);
+                
+                const monthItems = pipelineData.filter(item => {
+                    let closeDate;
+                    if (item.CloseDate instanceof Date) {
+                        closeDate = item.CloseDate;
+                    } else {
+                        closeDate = new Date(item.CloseDate);
+                        // Handle additional date formats if needed
+                        if (isNaN(closeDate.getTime())) {
+                            const parts = item.CloseDate.split(/[/\-\.]/);
+                            if (parts.length === 3) {
+                                if (parts[0].length <= 2 && parts[1].length <= 2) {
+                                    closeDate = new Date(parts[2], parts[0] - 1, parts[1]);
+                                } else {
+                                    closeDate = new Date(parts[0], parts[1] - 1, parts[2]);
+                                }
+                            }
+                        }
+                    }
+                    
+                    return !isNaN(closeDate.getTime()) && 
+                           closeDate >= startDate && 
+                           closeDate <= endDate && 
+                           !item.Stage.includes('Closed');
+                });
+                
+                const monthValue = monthItems.reduce((sum, item) => sum + item.Value, 0) / 1000000; // Convert to millions
+                monthData.push(monthValue);
+            }
+            
+            const ctx = document.getElementById('opportunityTrendChart').getContext('2d');
+            
+            // Mobile-optimized chart options
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        bodyFont: {
+                            size: isMobile() ? 14 : 12
+                        },
+                        padding: isMobile() ? 10 : 8
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Value ($M)',
+                            font: {
+                                size: isMobile() ? 14 : 12
+                            }
+                        },
+                        ticks: {
+                            font: {
+                                size: isMobile() ? 12 : 11
+                            }
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            font: {
+                                size: isMobile() ? 12 : 11
+                            },
+                            maxRotation: isMobile() ? 45 : 0
+                        }
+                    }
+                }
+            };
+            
+            // Destroy previous chart if it exists
+            if (opportunityTrendChart) {
+                opportunityTrendChart.destroy();
+            }
+            
+            opportunityTrendChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: months,
+                    datasets: [{
+                        label: 'Projected Pipeline Value ($M)',
+                        data: monthData,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: chartOptions
+            });
+        }
+
+        function createWinRateChart() {
+            // Calculate win rates by stage
+            const stages = ['Identify', 'Qualify', 'Propose', 'Negotiate'];
+            const avgProbability = stages.map(stage => {
+                const stageItems = pipelineData.filter(item => item.Stage === stage);
+                if (stageItems.length === 0) return 0;
+                const totalProb = stageItems.reduce((sum, item) => sum + item.Probability, 0);
+                return totalProb / stageItems.length;
+            });
+            
+            // Calculate historical win rate
+            const closedOpps = pipelineData.filter(item => item.Stage.includes('Closed'));
+            const wonOpps = pipelineData.filter(item => item.Stage === 'Closed Won');
+            const historicalWinRate = closedOpps.length > 0 ? (wonOpps.length / closedOpps.length) * 100 : 0;
+            
+            const ctx = document.getElementById('winRateChart').getContext('2d');
+            
+            // Mobile-optimized chart options
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            boxWidth: isMobile() ? 10 : 12,
+                            padding: isMobile() ? 15 : 10,
+                            font: {
+                                size: isMobile() ? 12 : 11
+                            }
+                        }
+                    },
+                    tooltip: {
+                        bodyFont: {
+                            size: isMobile() ? 14 : 12
+                        },
+                        padding: isMobile() ? 10 : 8
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: 'Probability (%)',
+                            font: {
+                                size: isMobile() ? 14 : 12
+                            }
+                        },
+                        ticks: {
+                            font: {
+                                size: isMobile() ? 12 : 11
+                            }
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            font: {
+                                size: isMobile() ? 12 : 11
+                            }
+                        }
+                    }
+                }
+            };
+            
+            // Destroy previous chart if it exists
+            if (winRateChart) {
+                winRateChart.destroy();
+            }
+            
+            winRateChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: stages,
+                    datasets: [{
+                        label: 'Avg. Probability (%)',
+                        data: avgProbability,
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1,
+                        yAxisID: 'y'
+                    }, {
+                        label: 'Historical Win Rate',
+                        data: [historicalWinRate, historicalWinRate, historicalWinRate, historicalWinRate],
+                        type: 'line',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        fill: false,
+                        pointRadius: 0,
+                        yAxisID: 'y'
+                    }]
+                },
+                options: chartOptions
+            });
+        }
+
+        function createAgencyBreakdownChart() {
+            // Group by agency and stage
+            const agencies = [...new Set(pipelineData.filter(item => !item.Stage.includes('Closed Lost')).map(item => item.Agency))];
+            const stages = ['Identify', 'Qualify', 'Propose', 'Negotiate', 'Closed Won'];
+            
+            const datasets = stages.map((stage, index) => {
+                const data = agencies.map(agency => {
+                    const agencyStageItems = pipelineData.filter(item => 
+                        item.Agency === agency && item.Stage === stage);
+                    const agencyStageValue = agencyStageItems.reduce((sum, item) => sum + item.Value, 0);
+                    return agencyStageValue / 1000000; // Convert to millions
+                });
+                
+                const colors = [
+                    'rgba(54, 162, 235, 0.7)',
+                    'rgba(75, 192, 192, 0.7)',
+                    'rgba(153, 102, 255, 0.7)',
+                    'rgba(255, 159, 64, 0.7)',
+                    'rgba(76, 175, 80, 0.7)'
+                ];
+                
+                return {
+                    label: stage,
+                    data,
+                    backgroundColor: colors[index % colors.length],
+                    borderWidth: 1
+                };
+            });
+            
+            const ctx = document.getElementById('agencyBreakdownChart').getContext('2d');
+            
+            // Mobile-optimized chart options
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            boxWidth: isMobile() ? 10 : 12,
+                            padding: isMobile() ? 15 : 10,
+                            font: {
+                                size: isMobile() ? 12 : 11
+                            }
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Pipeline Value by Agency and Stage ($M)',
+                        font: {
+                            size: isMobile() ? 14 : 12
+                        }
+                    },
+                    tooltip: {
+                        bodyFont: {
+                            size: isMobile() ? 14 : 12
+                        },
+                        padding: isMobile() ? 10 : 8
+                    }
+                },
+                scales: {
+                    x: {
+                        stacked: true,
+                        ticks: {
+                            font: {
+                                size: isMobile() ? 12 : 11
+                            },
+                            maxRotation: isMobile() ? 45 : 0
+                        }
+                    },
+                    y: {
+                        stacked: true,
+                        title: {
+                            display: true,
+                            text: 'Value ($M)',
+                            font: {
+                                size: isMobile() ? 14 : 12
+                            }
+                        },
+                        ticks: {
+                            font: {
+                                size: isMobile() ? 12 : 11
+                            }
+                        }
+                    }
+                }
+            };
+            
+            // Destroy previous chart if it exists
+            if (agencyBreakdownChart) {
+                agencyBreakdownChart.destroy();
+            }
+            
+            agencyBreakdownChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: agencies,
+                    datasets: datasets
+                },
+                options: chartOptions
+            });
+        }
+
+        function updateExecutiveSummary() {
+            const summaryContent = document.getElementById('summaryContent');
+            
+            // Calculate key metrics
+            const activeOpps = pipelineData.filter(item => !item.Stage.includes('Closed'));
+            const totalValue = activeOpps.reduce((sum, item) => sum + item.Value, 0);
+            
+            const closedOpps = pipelineData.filter(item => item.Stage.includes('Closed'));
+            const wonOpps = pipelineData.filter(item => item.Stage === 'Closed Won');
+            const winRate = closedOpps.length > 0 ? (wonOpps.length / closedOpps.length) * 100 : 0;
+            
+            // Get top agencies
+            const agencyValues = {};
+            activeOpps.forEach(item => {
+                if (!agencyValues[item.Agency]) {
+                    agencyValues[item.Agency] = 0;
+                }
+                agencyValues[item.Agency] += item.Value;
+            });
+            
+            const topAgencies = Object.entries(agencyValues)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 2)
+                .map(([agency, value]) => agency);
+            
+            // Get opportunity stages breakdown
+            const stageValues = {};
+            const stages = ['Identify', 'Qualify', 'Propose', 'Negotiate'];
+            stages.forEach(stage => {
+                const stageItems = activeOpps.filter(item => item.Stage === stage);
+                stageValues[stage] = stageItems.reduce((sum, item) => sum + item.Value, 0);
+            });
+            
+            const topStage = Object.entries(stageValues)
+                .sort((a, b) => b[1] - a[1])
+                .map(([stage, value]) => stage)[0];
+            
+            // Generate summary
+            let summary = '';
+            
+            if (activeOpps.length > 0) {
+                summary += `<p>Based on current pipeline data, we have <strong>${activeOpps.length} active opportunities</strong> with a total value of <strong>${formatCurrency(totalValue)}</strong>. Our highest value opportunities are with ${topAgencies.join(' and ')}, making up ${Math.round((agencyValues[topAgencies[0]] + (agencyValues[topAgencies[1]] || 0)) / totalValue * 100)}% of our total pipeline value.</p>`;
+                
+                summary += `<p>The current win rate of ${Math.round(winRate)}% ${winRate >= 60 ? 'exceeds' : 'is below'} our quarterly target of 60%. Focus areas for improvement should include advancing opportunities in the ${topStage} stage and expanding our presence within civilian agencies.</p>`;
+            } else {
+                summary = '<p>Upload pipeline data or use the sample data to generate an executive summary.</p>';
+            }
+            
+            summaryContent.innerHTML = summary;
+        }
+
+        // Export functions
+        function exportChartAsImage(chartId, title) {
+            const canvas = document.getElementById(chartId);
+            
+            // Create a temporary canvas with padding and title
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            
+            // Set dimensions with padding
+            tempCanvas.width = canvas.width + 40;
+            tempCanvas.height = canvas.height + 80;
+            
+            // Fill background
+            tempCtx.fillStyle = 'white';
+            tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+            
+            // Add FedPipe branding
+            tempCtx.font = 'bold 16px sans-serif';
+            tempCtx.fillStyle = '#1a3a5f';
+            tempCtx.textAlign = 'left';
+            tempCtx.fillText('FedPipe', 20, 30);
+            
+            // Add current date
+            const currentDate = new Date().toLocaleDateString();
+            tempCtx.font = '12px sans-serif';
+            tempCtx.fillStyle = '#3c6e71';
+            tempCtx.textAlign = 'right';
+            tempCtx.fillText(`Generated: ${currentDate}`, tempCanvas.width - 20, 30);
+            
+            // Add chart title
+            tempCtx.font = 'bold 14px sans-serif';
+            tempCtx.fillStyle = '#333333';
+            tempCtx.textAlign = 'center';
+            tempCtx.fillText(title, tempCanvas.width / 2, 55);
+            
+            // Draw original chart on temp canvas
+            tempCtx.drawImage(canvas, 20, 70);
+            
+            // Convert to image
+            const image = tempCanvas.toDataURL('image/png');
+            
+            // Create download link
+            const downloadLink = document.createElement('a');
+            downloadLink.href = image;
+            downloadLink.download = `fedpipe_${title.toLowerCase().replace(/\s+/g, '_')}.png`;
+            
+            // Trigger download
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+            
+            showToast('Chart exported successfully', 'success');
+        }
+
+        function exportAllCharts() {
+            const charts = [
+                { id: 'pipelineByStageChart', title: 'Pipeline by Stage' },
+                { id: 'pipelineByAgencyChart', title: 'Pipeline by Agency' },
+                { id: 'opportunityTrendChart', title: 'Opportunity Trend' },
+                { id: 'winRateChart', title: 'Win Rate Analysis' },
+                { id: 'agencyBreakdownChart', title: 'Agency Breakdown' }
+            ];
+            
+            let exportCount = 0;
+            
+            charts.forEach((chart, index) => {
+                // Add a small delay between exports to prevent browser issues
+                setTimeout(() => {
+                    exportChartAsImage(chart.id, chart.title);
+                    exportCount++;
+                    
+                    if (exportCount === charts.length) {
+                        showToast('All charts exported successfully', 'success');
+                    }
+                }, index * 500);
+            });
+        }
+
+        function generateExecutiveReport() {
+            const reportContent = document.getElementById('reportContent');
+            
+            // Calculate key metrics
+            const activeOpps = pipelineData.filter(item => !item.Stage.includes('Closed'));
+            const totalValue = activeOpps.reduce((sum, item) => sum + item.Value, 0);
+            
+            const closedOpps = pipelineData.filter(item => item.Stage.includes('Closed'));
+            const wonOpps = pipelineData.filter(item => item.Stage === 'Closed Won');
+            const winRate = closedOpps.length > 0 ? (wonOpps.length / closedOpps.length) * 100 : 0;
+            
+            const avgProbability = activeOpps.length > 0 ? 
+                activeOpps.reduce((sum, item) => sum + item.Probability, 0) / activeOpps.length : 0;
+            
+            // Generate report HTML
+            const reportHTML = `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap;">
+                    <div style="min-width: 200px; margin-bottom: 10px;">
+                        <h2 style="color: #1a3a5f; margin-bottom: 5px;">Federal Sales Pipeline Summary</h2>
+                        <p style="color: #3c6e71;">Q3 FY2025</p>
+                    </div>
+                    <div style="text-align: right; min-width: 200px; margin-bottom: 10px;">
+                        <p style="margin: 0;"><strong>Generated:</strong> ${new Date().toLocaleDateString()}</p>
+                        <p style="margin: 0;"><strong>Prepared by:</strong> FedPipe</p>
+                    </div>
+                </div>
+                
+                <div style="background-color: #f9f9f9; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+                    <h3 style="margin-top: 0; margin-bottom: 15px; color: #1a3a5f;">Key Metrics</h3>
+                    <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+                        <div style="flex: 1; min-width: 150px; margin-bottom: 10px;">
+                            <p style="font-size: 14px; margin-bottom: 5px; color: #3c6e71;">Active Opportunities</p>
+                            <p style="font-size: 24px; font-weight: bold; margin: 0;">${activeOpps.length}</p>
+                        </div>
+                        <div style="flex: 1; min-width: 150px; margin-bottom: 10px;">
+                            <p style="font-size: 14px; margin-bottom: 5px; color: #3c6e71;">Total Pipeline Value</p>
+                            <p style="font-size: 24px; font-weight: bold; margin: 0;">${formatCurrency(totalValue)}</p>
+                        </div>
+                        <div style="flex: 1; min-width: 150px; margin-bottom: 10px;">
+                            <p style="font-size: 14px; margin-bottom: 5px; color: #3c6e71;">Avg. Win Probability</p>
+                            <p style="font-size: 24px; font-weight: bold; margin: 0;">${Math.round(avgProbability)}%</p>
+                        </div>
+                        <div style="flex: 1; min-width: 150px; margin-bottom: 10px;">
+                            <p style="font-size: 14px; margin-bottom: 5px; color: #3c6e71;">Historical Win Rate</p>
+                            <p style="font-size: 24px; font-weight: bold; margin: 0;">${Math.round(winRate)}%</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 20px; overflow-x: auto;">
+                    <h3 style="margin-top: 0; margin-bottom: 15px; color: #1a3a5f;">Top Opportunities</h3>
+                    <table style="width: 100%; border-collapse: collapse; min-width: 600px;">
+                        <thead>
+                            <tr style="background-color: #f0f0f0;">
+                                <th style="text-align: left; padding: 10px; border-bottom: 1px solid #ddd;">Opportunity</th>
+                                <th style="text-align: left; padding: 10px; border-bottom: 1px solid #ddd;">Agency</th>
+                                <th style="text-align: left; padding: 10px; border-bottom: 1px solid #ddd;">Stage</th>
+                                <th style="text-align: right; padding: 10px; border-bottom: 1px solid #ddd;">Value</th>
+                                <th style="text-align: right; padding: 10px; border-bottom: 1px solid #ddd;">Probability</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${pipelineData
+                                .filter(item => !item.Stage.includes('Closed'))
+                                .sort((a, b) => b.Value - a.Value)
+                                .slice(0, 5)
+                                .map(item => `
+                                    <tr>
+                                        <td style="padding: 10px; border-bottom: 1px solid #ddd;">${item.OpportunityName}</td>
+                                        <td style="padding: 10px; border-bottom: 1px solid #ddd;">${item.Agency}</td>
+                                        <td style="padding: 10px; border-bottom: 1px solid #ddd;">${item.Stage}</td>
+                                        <td style="text-align: right; padding: 10px; border-bottom: 1px solid #ddd;">${formatCurrency(item.Value)}</td>
+                                        <td style="text-align: right; padding: 10px; border-bottom: 1px solid #ddd;">${item.Probability}%</td>
+                                    </tr>
+                                `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div>
+                    <h3 style="margin-top: 0; margin-bottom: 15px; color: #1a3a5f;">Recommendations</h3>
+                    <ul style="padding-left: 20px;">
+                        <li style="margin-bottom: 10px;">Focus on advancing opportunities in the ${getTopStage()} stage to improve pipeline velocity.</li>
+                        <li style="margin-bottom: 10px;">Strengthen relationships with ${getTopAgencies(2).join(' and ')} contacts to secure upcoming opportunities.</li>
+                        <li style="margin-bottom: 10px;">Allocate resources to improve win rates in the ${getLowestWinRateStage()} stage.</li>
+                        <li style="margin-bottom: 10px;">Prepare for end-of-quarter federal spending surge in September.</li>
+                    </ul>
+                </div>
+            `;
+            
+            reportContent.innerHTML = reportHTML;
+            openModal(reportModal);
+            
+            // Helper functions for report generation
+            function getTopStage() {
+                const stages = ['Identify', 'Qualify', 'Propose', 'Negotiate'];
+                const stageValues = {};
+                
+                stages.forEach(stage => {
+                    const stageItems = activeOpps.filter(item => item.Stage === stage);
+                    stageValues[stage] = stageItems.reduce((sum, item) => sum + item.Value, 0);
+                });
+                
+                return Object.entries(stageValues)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([stage, value]) => stage)[0] || stages[0];
+            }
+            
+            function getTopAgencies(count = 2) {
+                const agencyValues = {};
+                
+                activeOpps.forEach(item => {
+                    if (!agencyValues[item.Agency]) {
+                        agencyValues[item.Agency] = 0;
+                    }
+                    agencyValues[item.Agency] += item.Value;
+                });
+                
+                return Object.entries(agencyValues)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, count)
+                    .map(([agency, value]) => agency);
+            }
+            
+            function getLowestWinRateStage() {
+                const stages = ['Identify', 'Qualify', 'Propose', 'Negotiate'];
+                const stageProbabilities = {};
+                
+                stages.forEach(stage => {
+                    const stageItems = activeOpps.filter(item => item.Stage === stage);
+                    if (stageItems.length === 0) {
+                        stageProbabilities[stage] = 100; // Default high value so it won't be selected
+                    } else {
+                        const totalProb = stageItems.reduce((sum, item) => sum + item.Probability, 0);
+                        stageProbabilities[stage] = totalProb / stageItems.length;
+                    }
+                });
+                
+                return Object.entries(stageProbabilities)
+                    .filter(([stage, prob]) => prob < 100) // Filter out empty stages
+                    .sort((a, b) => a[1] - b[1])
+                    .map(([stage, prob]) => stage)[0] || stages[0]; // Default to first stage if all empty
+            }
+        }
+
+        function downloadExecutiveReport() {
+            // In a real implementation, this would generate a PDF
+            // For this demo, we'll just show a success message
+            showToast('Report downloaded successfully', 'success');
+        }
+
+        function exportReportAsImage() {
+            const reportContent = document.getElementById('reportContent');
+            
+            html2canvas(reportContent).then(canvas => {
+                const image = canvas.toDataURL('image/png');
+                const downloadLink = document.createElement('a');
+                downloadLink.href = image;
+                downloadLink.download = 'fedpipe_executive_report.png';
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+                
+                showToast('Report exported as image', 'success');
+            });
+        }
+
+        // Utility functions
+        function formatCurrency(value) {
+            if (!value) return '$0';
+            
+            if (value >= 1000000) {
+                return `$${(value / 1000000).toFixed(1)}M`;
+            } else if (value >= 1000) {
+                return `$${(value / 1000).toFixed(0)}K`;
+            } else {
+                return `$${value.toFixed(0)}`;
+            }
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            
+            let icon = '';
+            switch(type) {
+                case 'success':
+                    icon = '<i class="fas fa-check-circle"></i>';
+                    break;
+                case 'error':
+                    icon = '<i class="fas fa-exclamation-circle"></i>';
+                    break;
+                case 'warning':
+                    icon = '<i class="fas fa-exclamation-triangle"></i>';
+                    break;
+                default:
+                    icon = '<i class="fas fa-info-circle"></i>';
+            }
+            
+            toast.innerHTML = `
+                <div class="toast-icon">${icon}</div>
+                <div class="toast-content">
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close">&times;</button>
+            `;
+            
+            toastContainer.appendChild(toast);
+            
+            // Show animation
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 10);
+            
+            // Auto close
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    if (toast.parentNode === toastContainer) {
+                        toastContainer.removeChild(toast);
+                    }
+                }, 300);
+            }, 5000);
+            
+            // Close button
+            toast.querySelector('.toast-close').addEventListener('click', () => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    if (toast.parentNode === toastContainer) {
+                        toastContainer.removeChild(toast);
+                    }
+                }, 300);
+            });
+        }
+
+        // Check if device is mobile
+        function isMobile() {
+            return window.innerWidth <= 768;
+        }
+
+        // Helper function to safely get date values
+        function parseDate(dateString) {
+            if (!dateString) return null;
+            
+            // Try standard ISO format
+            let date = new Date(dateString);
+            
+            // If invalid, try other common formats
+            if (isNaN(date.getTime())) {
+                // Try MM/DD/YYYY
+                const parts = dateString.split(/[/\-\.]/);
+                if (parts.length === 3) {
+                    // Try MM/DD/YYYY
+                    if (parts[0].length <= 2 && parts[1].length <= 2) {
+                        date = new Date(parts[2], parts[0] - 1, parts[1]);
+                    } 
+                    // Try YYYY/MM/DD
+                    else if (parts[0].length === 4) {
+                        date = new Date(parts[0], parts[1] - 1, parts[2]);
+                    }
+                    // Try DD/MM/YYYY
+                    else if (parts[2].length === 4) {
+                        date = new Date(parts[2], parts[1] - 1, parts[0]);
+                    }
+                }
+            }
+            
+            return isNaN(date.getTime()) ? null : date;
+        }
+
+        // Add touch event handling for mobile
+        if ('ontouchstart' in document.documentElement) {
+            document.addEventListener('touchstart', function() {
+                // This empty handler enables :active CSS selectors on iOS
+            }, false);
+        }
+    </script>
+</body>
+</html>
