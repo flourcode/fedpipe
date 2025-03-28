@@ -3,7 +3,7 @@
 
 A standalone, self-contained HTML application for federal sales account managers to visualize, analyze and report on their sales pipeline data.
 
-![FedPipe Dashboard](https://github.com/flourcode/fedpipe/screenshot.png)
+![FedPipe Dashboard](https://github.com/flourcode/fedpipe/blob/main/screenshot.png)
 
 ## Overview
 
