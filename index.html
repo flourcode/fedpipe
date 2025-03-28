@@ -631,29 +631,26 @@ https://github.com/flourcode/fedpipe
       <!-- Dashboard Section (initially shows sample data) -->
 <!-- Dashboard Section (initially shows sample data) -->
 <div class="dashboard" id="dashboard">
-    <div style="margin-bottom: 2rem;">
-        <div class="card" style="padding: 1.5rem;">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
-                <div style="display: flex; gap: 1rem;">
-                    <button class="btn" id="uploadCsvDashboardBtn" style="padding: 0.75rem 1.25rem;">
-                        <i class="fas fa-upload" style="margin-right: 0.5rem;"></i> Upload Your Data
-                    </button>
-                    <button class="btn btn-outline" id="downloadTemplateBtn" style="padding: 0.75rem 1.25rem;">
-                        <i class="fas fa-download" style="margin-right: 0.5rem;"></i> Download Template
-                    </button>
-                </div>
-                <div style="display: flex; gap: 1rem;">
-                    <button class="btn btn-outline" id="resetBtn" style="padding: 0.75rem 1.25rem;">
-                        <i class="fas fa-undo" style="margin-right: 0.5rem;"></i> Reset
-                    </button>
-                    <button class="btn btn-secondary" id="exportAllBtn" style="padding: 0.75rem 1.25rem;">
-                        <i class="fas fa-download" style="margin-right: 0.5rem;"></i> Export All Charts
-                    </button>
-                </div>
+    <div class="card" style="margin-bottom: 2rem;">
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1.5rem;">
+            <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
+                <button class="btn" id="uploadCsvDashboardBtn" style="padding: 0.75rem 1.25rem;">
+                    <i class="fas fa-upload" style="margin-right: 0.5rem;"></i> Load Your Data
+                </button>
+                <button class="btn btn-outline" id="downloadTemplateBtn" style="padding: 0.75rem 1.25rem;">
+                    <i class="fas fa-download" style="margin-right: 0.5rem;"></i> Download Template
+                </button>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
+                <button class="btn btn-outline" id="resetBtn" style="padding: 0.75rem 1.25rem;">
+                    <i class="fas fa-undo" style="margin-right: 0.5rem;"></i> Reset
+                </button>
+                <button class="btn btn-secondary" id="exportAllBtn" style="padding: 0.75rem 1.25rem;">
+                    <i class="fas fa-download" style="margin-right: 0.5rem;"></i> Export All Charts
+                </button>
             </div>
         </div>
-    </div>
-            
+    </div>            
             <div class="stats-grid" id="statsGrid">
                 <div class="stat-card">
                     <div class="stat-value" id="activeOpportunities">0</div>
