@@ -629,28 +629,27 @@ https://github.com/flourcode/fedpipe
         </div>
 
       <!-- Dashboard Section (initially shows sample data) -->
-<!-- Dashboard Section (initially shows sample data) -->
 <div class="dashboard" id="dashboard">
     <div class="card" style="margin-bottom: 2rem;">
-        <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
-    <button class="btn" id="uploadCsvDashboardBtn" style="padding: 0.75rem 1.25rem;">
-        <i class="fas fa-upload" style="margin-right: 0.5rem;"></i> Load Your Data
-    </button>
-    <button class="btn btn-outline" id="downloadTemplateDashBtn" style="padding: 0.75rem 1.25rem;">
-        <i class="fas fa-download" style="margin-right: 0.5rem;"></i> Download Template
-    </button>
-</div>
-            <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
-                <button class="btn btn-outline" id="resetBtn" style="padding: 0.75rem 1.25rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem; margin-bottom: 0.5rem;">
+            <h3 style="margin: 0; color: var(--primary);">Dashboard Controls</h3>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <button class="btn" id="uploadCsvDashboardBtn">
+                    <i class="fas fa-upload" style="margin-right: 0.5rem;"></i> Load Your Data
+                </button>
+                <button class="btn btn-outline" id="downloadTemplateDashBtn">
+                    <i class="fas fa-download" style="margin-right: 0.5rem;"></i> Template
+                </button>
+                <button class="btn btn-outline" id="resetBtn">
                     <i class="fas fa-undo" style="margin-right: 0.5rem;"></i> Reset
                 </button>
-                <button class="btn btn-secondary" id="exportAllBtn" style="padding: 0.75rem 1.25rem;">
+                <button class="btn btn-secondary" id="exportAllBtn">
                     <i class="fas fa-download" style="margin-right: 0.5rem;"></i> Export All Charts
                 </button>
             </div>
         </div>
-    </div>            
-            <div class="stats-grid" id="statsGrid">
+    </div>
+      <div class="stats-grid" id="statsGrid">
                 <div class="stat-card">
                     <div class="stat-value" id="activeOpportunities">0</div>
                     <div class="stat-label">Active Opportunities</div>
