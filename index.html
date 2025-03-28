@@ -632,15 +632,14 @@ https://github.com/flourcode/fedpipe
 <!-- Dashboard Section (initially shows sample data) -->
 <div class="dashboard" id="dashboard">
     <div class="card" style="margin-bottom: 2rem;">
-        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1.5rem;">
-            <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
-                <button class="btn" id="uploadCsvDashboardBtn" style="padding: 0.75rem 1.25rem;">
-                    <i class="fas fa-upload" style="margin-right: 0.5rem;"></i> Load Your Data
-                </button>
-                <button class="btn btn-outline" id="downloadTemplateBtn" style="padding: 0.75rem 1.25rem;">
-                    <i class="fas fa-download" style="margin-right: 0.5rem;"></i> Download Template
-                </button>
-            </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
+    <button class="btn" id="uploadCsvDashboardBtn" style="padding: 0.75rem 1.25rem;">
+        <i class="fas fa-upload" style="margin-right: 0.5rem;"></i> Load Your Data
+    </button>
+    <button class="btn btn-outline" id="downloadTemplateDashBtn" style="padding: 0.75rem 1.25rem;">
+        <i class="fas fa-download" style="margin-right: 0.5rem;"></i> Download Template
+    </button>
+</div>
             <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
                 <button class="btn btn-outline" id="resetBtn" style="padding: 0.75rem 1.25rem;">
                     <i class="fas fa-undo" style="margin-right: 0.5rem;"></i> Reset
@@ -916,10 +915,13 @@ https://github.com/flourcode/fedpipe
                 useSampleData();
             });
             
-            downloadTemplateBtn.addEventListener('click', function() {
-                downloadCSVTemplate();
-            });
-            
+downloadTemplateBtn.addEventListener('click', function() {
+    downloadCSVTemplate();
+});
+
+document.getElementById('downloadTemplateDashBtn').addEventListener('click', function() {
+    downloadCSVTemplate();
+});
             // File inputs with improved handling for both CSV and Excel
             csvFileInput.addEventListener('change', function(e) {
                 if (e.target.files.length > 0) {
